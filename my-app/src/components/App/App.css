@@ -1,0 +1,5 @@
+.app__content {
+  height: 100vh;
+  display: flex;
+  background: white;
+}
