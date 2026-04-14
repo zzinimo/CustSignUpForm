@@ -5,6 +5,7 @@ function LoginForm() {
   const initialInput = {
     firstName: "",
     lastName: "",
+    email: "",
     password: "",
     confirmPassword: "",
   };
@@ -12,6 +13,7 @@ function LoginForm() {
   const initialErrors = {
     firstName: "",
     lastName: "",
+    email: "",
     password: "",
     confirmPassword: "",
   };
@@ -38,6 +40,8 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const emailInput = signupForm.elements.email;
+
     const confirmPasswordError = !input.confirmPassword.trim()
       ? "Confirm passowrd is required"
       : input.confirmPassword !== input.password
@@ -47,9 +51,16 @@ function LoginForm() {
     const newErrors = {
       firstName: input.firstName.trim() ? "" : "First name is required",
       lastName: input.lastName.trim() ? "" : "Last name is required",
+      email: !emailInput.value.trim()
+        ? "Email is required"
+        : emailInput.checkValidity()
+          ? ""
+          : "Please enter valid email",
       password: input.password.trim() ? "" : "Password is required",
       confirmPassword: confirmPasswordError,
     };
+
+    console.log(newErrors);
 
     setErrors(newErrors);
 
@@ -69,6 +80,8 @@ function LoginForm() {
       setIsOpen(false);
     }
   };
+
+  const signupForm = document.getElementById("myForm");
 
   if (!isOpen) return null;
   return (
@@ -114,6 +127,23 @@ function LoginForm() {
               <span className="myForm__error">{errors.lastName}</span>
             )}
           </label>
+
+          <label className="myForm__label">
+            Email:
+            <input
+              onChange={handleInputChange}
+              value={input.email}
+              id="myForm__label"
+              name="email"
+              type="email"
+              className="myForm__input"
+              placeholder="Enter your email"
+            />
+            {errors.email && (
+              <span className="myForm__error">{errors.email}</span>
+            )}
+          </label>
+
           <label className="myForm__label">
             Password:
             <input
