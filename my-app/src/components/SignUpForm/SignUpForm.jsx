@@ -1,7 +1,8 @@
-import "./LoginForm.css";
+import "./SignUpForm.css";
 import { useState } from "react";
+import { createUserFetch } from "../../utils/api";
 
-function LoginForm() {
+function SignUpForm({ setModalType, modalType }) {
   const initialInput = {
     firstName: "",
     lastName: "",
@@ -18,7 +19,8 @@ function LoginForm() {
     confirmPassword: "",
   };
 
-  const [isOpen, setIsOpen] = useState(true);
+  const isOpen = modalType === "signUp";
+
   const [input, setInput] = useState(initialInput);
   const [errors, setErrors] = useState(initialErrors);
 
@@ -34,13 +36,13 @@ function LoginForm() {
 
   const handleCloseButtonClick = (e) => {
     console.log(e.target);
-    setIsOpen(false);
+    setModalType(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const emailInput = signupForm.elements.email;
+    const emailInput = e.currentTarget.elements.email;
 
     const confirmPasswordError = !input.confirmPassword.trim()
       ? "Confirm passowrd is required"
@@ -59,9 +61,6 @@ function LoginForm() {
       password: input.password.trim() ? "" : "Password is required",
       confirmPassword: confirmPasswordError,
     };
-
-    console.log(newErrors);
-
     setErrors(newErrors);
 
     const hasErrors = Object.values(newErrors).some(Boolean);
@@ -71,17 +70,13 @@ function LoginForm() {
     }
     setIsLoading(true);
     try {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 3000);
-      });
+      await createUserFetch(input);
     } finally {
       setIsLoading(false);
       setInput(initialInput);
-      setIsOpen(false);
+      setModalType(null);
     }
   };
-
-  const signupForm = document.getElementById("myForm");
 
   if (!isOpen) return null;
   return (
@@ -151,7 +146,7 @@ function LoginForm() {
               value={input.password}
               id="myForm__label"
               name="password"
-              type="text"
+              type="password"
               className="myForm__input"
               placeholder="Enter Your Password"
             />
@@ -166,7 +161,7 @@ function LoginForm() {
               value={input.confirmPassword}
               id="myForm__label"
               name="confirmPassword"
-              type="text"
+              type="password"
               className="myForm__input"
               placeholder="Enter Your Password"
             />
@@ -187,4 +182,4 @@ function LoginForm() {
   );
 }
 
-export default LoginForm;
+export default SignUpForm;

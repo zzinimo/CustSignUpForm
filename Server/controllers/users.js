@@ -25,10 +25,11 @@ module.exports.getUserById = async (req, res) => {
 
 module.exports.createUser = async (req, res) => {
   try {
-    const { firstName, lastName, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
     const newUser = await User.create({
       firstName,
       lastName,
+      email,
       password,
     });
     return res.status(201).send({ data: newUser });
