@@ -1,5 +1,7 @@
 import "./SignInForm.css";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+
+import { login } from "../../utils/api";
 
 function SignInForm({ modalType, setModalType }) {
   const initialInput = {
@@ -15,7 +17,31 @@ function SignInForm({ modalType, setModalType }) {
 
   const [input, setInput] = useState(initialInput);
   const [errors, setErrors] = useState(initialErrors);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    if (modalType !== "signIn") return;
+
+    const handleMouseDown = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        setModalType(null);
+      }
+    };
+
+    const handleEscapeKey = (e) => {
+      if (e.key === "Escape") {
+        setModalType(null);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [modalType]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,7 +61,7 @@ function SignInForm({ modalType, setModalType }) {
     const emailInput = e.currentTarget.elements.email;
 
     const newErrors = {
-      email: emailInput.value.trim()
+      email: !emailInput.value.trim()
         ? "Email is required"
         : emailInput.checkValidity()
           ? ""
@@ -48,17 +74,21 @@ function SignInForm({ modalType, setModalType }) {
     if (hasErrors) {
       return;
     }
-
-    setIsLoading(true);
+    console.log("what getting set is", input);
+    login(input);
   };
 
   if (!isOpen) return null;
-  const signInForm = document.getElementById("mySignInForm");
 
   return (
     <div className="overlay">
       <div className="myForm__content">
-        <form className="myForm" id="mySignInForm" onSubmit={handleSubmit}>
+        <form
+          ref={formRef}
+          className="myForm"
+          id="mySignInForm"
+          onSubmit={handleSubmit}
+        >
           <button
             onClick={handleCloseButtonClick}
             className="myForm__button_type_close"
@@ -98,10 +128,7 @@ function SignInForm({ modalType, setModalType }) {
               <span className="myForm__error">{errors.password}</span>
             )}
           </label>
-          <button
-            type="submit"
-            className={!isLoading ? "myForm__button" : "myForm__button success"}
-          >
+          <button type="submit" className="myForm__button">
             Sign In
           </button>
         </form>

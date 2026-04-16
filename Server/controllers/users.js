@@ -1,4 +1,6 @@
 const User = require("../models/user");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 module.exports.getUser = async (req, res) => {
   try {
@@ -26,13 +28,15 @@ module.exports.getUserById = async (req, res) => {
 module.exports.createUser = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       firstName,
       lastName,
       email,
-      password,
+      password: hashedPassword,
     });
-    return res.status(201).send({ data: newUser });
+    const userToReturn = await User.findById(newUser._id).select("-password");
+    return res.status(201).send({ data: userToReturn });
   } catch (e) {
     console.error(e);
     res.status(500).send({ message: "Error Creating User" });
@@ -69,4 +73,34 @@ module.exports.updateUser = async (req, res) => {
     console.error(e);
     res.status(500).send({ message: "Error finding user" });
   }
+};
+
+module.exports.login = async (req, res) => {
+  console.log(req.body);
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user) {
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
+
+  const userToSend = user.toObject();
+  delete userToSend.password;
+  //change to environment variable
+  const token = jwt.sign({ id: user._id }, "secret", { expiresIn: "10m" });
+  res.cookie("token", token, {
+    maxAge: 300000,
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
+  return res.json({ user: userToSend, message: "Logged in successfully!" });
 };

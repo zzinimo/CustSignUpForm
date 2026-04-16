@@ -4,6 +4,7 @@ import { useState } from "react";
 import SignUpForm from "../SignUpForm/SignUpForm";
 import SignInForm from "../SignInForm/SignInForm";
 import MainContent from "../MainContent/MainContent";
+import HomeScreen from "../HomeScreen/HomeScreen";
 
 function App() {
   const [modalType, setModalType] = useState(null);
@@ -25,6 +26,8 @@ function App() {
           </div>
         }
       />
+
+      <Route path="/home" element={<HomeScreen />} />
     </Routes>
   );
 }

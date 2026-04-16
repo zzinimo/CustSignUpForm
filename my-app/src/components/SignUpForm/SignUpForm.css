@@ -16,6 +16,8 @@
   border: none;
   border-radius: 8px;
   background: transparent;
+  color: white;
+  font-size: 18px;
 }
 
 .myForm__button_type_close:hover {
@@ -40,7 +42,7 @@
   width: 100%;
   margin: 0 auto;
   border-radius: 8px;
-  box-shadow: 5px 5px 10px rgb(145, 144, 144);
+  box-shadow: 5px 5px 10px rgb(255, 0, 0);
 }
 
 .myForm__title {
@@ -91,9 +93,7 @@
   border: none;
   border-radius: 8px;
   background-color: rgb(0, 173, 0);
-}
-
-.success {
-  background-color: green;
   color: white;
+  font-size: 22px;
+  font-weight: 400;
 }

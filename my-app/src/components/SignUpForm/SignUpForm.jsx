@@ -1,6 +1,7 @@
 import "./SignUpForm.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createUserFetch } from "../../utils/api";
+import { useRef } from "react";
 
 function SignUpForm({ setModalType, modalType }) {
   const initialInput = {
@@ -24,7 +25,7 @@ function SignUpForm({ setModalType, modalType }) {
   const [input, setInput] = useState(initialInput);
   const [errors, setErrors] = useState(initialErrors);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const formRef = useRef(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,21 +69,48 @@ function SignUpForm({ setModalType, modalType }) {
       console.log(newErrors);
       return;
     }
-    setIsLoading(true);
     try {
-      await createUserFetch(input);
+      const result = await createUserFetch(input);
+      console.log(result);
     } finally {
-      setIsLoading(false);
       setInput(initialInput);
       setModalType(null);
     }
   };
 
+  useEffect(() => {
+    if (modalType !== "signUp") return;
+
+    const handleMouseDown = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        setModalType(null);
+      }
+    };
+
+    const handleEscapeKey = (e) => {
+      if (e.key === "Escape") {
+        setModalType(null);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [modalType]);
+
   if (!isOpen) return null;
   return (
     <div className="overlay">
       <div className="myForm__content">
-        <form className="myForm" id="myForm" onSubmit={handleSubmit}>
+        <form
+          ref={formRef}
+          className="myForm"
+          id="myForm"
+          onSubmit={handleSubmit}
+        >
           <button
             onClick={handleCloseButtonClick}
             className="myForm__button_type_close"
@@ -170,11 +198,8 @@ function SignUpForm({ setModalType, modalType }) {
             )}
           </label>
 
-          <button
-            type="submit"
-            className={!isLoading ? "myForm__button" : "myForm__button success"}
-          >
-            {!isLoading ? "Submit" : "Submitted"}
+          <button type="submit" className="myForm__button">
+            Submit
           </button>
         </form>
       </div>
