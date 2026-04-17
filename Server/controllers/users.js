@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 module.exports.getUser = async (req, res) => {
   try {
+    // does this return passwords?
     const users = await User.find({});
     res.send({ data: users });
   } catch (e) {
@@ -106,5 +107,16 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.verify = (req, res) => {
-  res.status(200).json({ authenticated: true, _id: req.payload });
+  res.status(200).json({ authenticated: true, id: req.payload._id });
+};
+
+module.exports.logOut = (req, res) => {
+  res.clearCookie("token", {
+    maxAge: 300000,
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({ message: "Logged out successfully" });
 };

@@ -17,6 +17,7 @@ export const createUserFetch = async (userData) => {
 };
 
 export const login = async (userData) => {
+  console.log("request to authenticate sending");
   const response = await fetch(`${url}/login`, {
     method: "POST",
     credentials: "include",
@@ -28,6 +29,29 @@ export const login = async (userData) => {
 
   if (!response.ok) {
     throw new Error("Invalid email or password");
+  }
+
+  return response.json();
+};
+
+export const authenticate = async () => {
+  const response = await fetch(`${url}/me`, {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Login session expired");
+  }
+
+  return response.json();
+};
+
+export const logout = async () => {
+  const response = await fetch(`${url}/logout`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error("Error Logging out");
   }
 
   return response.json();

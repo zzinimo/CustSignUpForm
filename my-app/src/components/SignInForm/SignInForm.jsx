@@ -90,7 +90,7 @@ function SignInForm({ modalType, setModalType }) {
     }
   };
 
-  if (!isOpen) return null;
+  // if (!isOpen) return null;
 
   return (
     <div className="overlay">

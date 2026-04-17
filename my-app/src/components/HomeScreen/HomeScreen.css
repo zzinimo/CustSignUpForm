@@ -1,0 +1,21 @@
+.homeScreen__content {
+  background: rgb(66, 193, 83);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.homeScreen__text_container {
+  color: white;
+}
+
+.homeScreen__text_container_title {
+  margin: 0px;
+  font-size: 50px;
+}
+
+.homeScreen__text_container_subtext {
+  font-size: 25px;
+  text-align: center;
+}

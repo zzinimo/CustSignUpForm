@@ -7,11 +7,14 @@ const {
   getUserById,
   login,
   verify,
+  logOut,
 } = require("../controllers/users");
 
 const { checkToken } = require("../middleware/middleware");
 
 router.get("/me", checkToken, verify);
+
+router.get("/logout", logOut);
 
 router.get("/", checkToken, getUser);
 
