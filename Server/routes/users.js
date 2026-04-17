@@ -6,17 +6,22 @@ const {
   updateUser,
   getUserById,
   login,
+  verify,
 } = require("../controllers/users");
 
-router.get("/", getUser);
+const { checkToken } = require("../middleware/middleware");
 
-router.get("/:id", getUserById);
+router.get("/me", checkToken, verify);
 
-router.patch("/:id", updateUser);
+router.get("/", checkToken, getUser);
+
+router.get("/:id", checkToken, getUserById);
+
+router.patch("/:id", checkToken, updateUser);
 
 router.post("/", createUser);
 
-router.delete("/:id", deleteUser);
+router.delete("/:id", checkToken, deleteUser);
 
 //login route
 router.post("/login", login);

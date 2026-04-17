@@ -1,9 +1,12 @@
 import "./SignInForm.css";
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { login } from "../../utils/api";
 
 function SignInForm({ modalType, setModalType }) {
+  const navigate = useNavigate();
+
   const initialInput = {
     email: "",
     password: "",
@@ -12,6 +15,7 @@ function SignInForm({ modalType, setModalType }) {
   const initialErrors = {
     email: "",
     password: "",
+    submitError: "",
   };
   const isOpen = modalType === "signIn";
 
@@ -52,7 +56,6 @@ function SignInForm({ modalType, setModalType }) {
   };
 
   const handleCloseButtonClick = (e) => {
-    console.log(e.target);
     setModalType(null);
   };
 
@@ -67,6 +70,7 @@ function SignInForm({ modalType, setModalType }) {
           ? ""
           : "Please enter valid email",
       password: input.password.trim() ? "" : "Password is required",
+      submitError: "",
     };
 
     setErrors(newErrors);
@@ -74,8 +78,16 @@ function SignInForm({ modalType, setModalType }) {
     if (hasErrors) {
       return;
     }
-    console.log("what getting set is", input);
-    login(input);
+    try {
+      await login(input);
+      navigate("/home");
+    } catch (e) {
+      console.error(e);
+      setErrors((prev) => ({
+        ...prev,
+        submitError: "Sign in failed, try again",
+      }));
+    }
   };
 
   if (!isOpen) return null;
@@ -131,6 +143,9 @@ function SignInForm({ modalType, setModalType }) {
           <button type="submit" className="myForm__button">
             Sign In
           </button>
+          {errors.submitError && (
+            <span className="myForm__error">{errors.submitError}</span>
+          )}
         </form>
       </div>
     </div>
