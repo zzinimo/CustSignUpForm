@@ -11,7 +11,14 @@ function App() {
   const [modalType, setModalType] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const [timer, setTimer] = useState(20);
+  const [timer, setTimer] = useState(10);
+
+  const handleLoginSuccess = () => {
+    setAuthenticated(true);
+    setTimer(10); // Reset timer to initial value
+    setModalType(null);
+    navigate("/home", { replace: true });
+  };
 
   const navigate = useNavigate();
 
@@ -31,6 +38,8 @@ function App() {
   }, [navigate]);
 
   useEffect(() => {
+    let timeoutId;
+
     const timeLeft = () => {
       if (!authenticated) {
         return;
@@ -46,13 +55,13 @@ function App() {
       const timeoutId = setTimeout(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
-      console.log(timer);
+      console.log("timer", timer);
     };
 
     timeLeft();
 
     return () => {
-      clearTimeout(timeLeft);
+      clearTimeout(timeoutId);
     };
   }, [timer, authenticated, navigate]);
 
@@ -66,7 +75,11 @@ function App() {
               <SignUpForm setModalType={setModalType} modalType={modalType} />
             )}
             {modalType === "signIn" && (
-              <SignInForm setModalType={setModalType} modalType={modalType} />
+              <SignInForm
+                onLoginSuccess={handleLoginSuccess}
+                setModalType={setModalType}
+                modalType={modalType}
+              />
             )}
 
             <MainContent setModalType={setModalType} />
@@ -74,7 +87,7 @@ function App() {
         }
       />
 
-      <Route path="/home" element={<HomeScreen />} />
+      <Route path="/home" element={<HomeScreen timer={timer} />} />
     </Routes>
   );
 }

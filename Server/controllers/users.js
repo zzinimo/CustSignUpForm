@@ -95,9 +95,9 @@ module.exports.login = async (req, res) => {
   const userToSend = user.toObject();
   delete userToSend.password;
   //change to environment variable
-  const token = jwt.sign({ id: user._id }, "secret", { expiresIn: "5m" });
+  const token = jwt.sign({ id: user._id }, "secret", { expiresIn: "1h" });
   res.cookie("token", token, {
-    maxAge: 300000,
+    maxAge: 3600000,
     httpOnly: true,
     secure: false,
     sameSite: "lax",

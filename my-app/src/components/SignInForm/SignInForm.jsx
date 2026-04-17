@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { login } from "../../utils/api";
 
-function SignInForm({ modalType, setModalType }) {
+function SignInForm({ modalType, setModalType, onLoginSuccess }) {
   const navigate = useNavigate();
 
   const initialInput = {
@@ -80,7 +80,7 @@ function SignInForm({ modalType, setModalType }) {
     }
     try {
       await login(input);
-      navigate("/home");
+      onLoginSuccess();
     } catch (e) {
       console.error(e);
       setErrors((prev) => ({

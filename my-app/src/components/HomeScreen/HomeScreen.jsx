@@ -1,6 +1,6 @@
 import "./HomeScreen.css";
 
-function HomeScreen() {
+function HomeScreen({ timer }) {
   return (
     <div className="homeScreen__content">
       <div className="homeScreen__text_container">
@@ -10,6 +10,11 @@ function HomeScreen() {
         <p className="homeScreen__text_container_subtext">
           Please check your email for confirmation{" "}
         </p>
+        <button className="homeScreen__button">
+          Logging out in{" "}
+          <span className="homeScreen__button_span">{timer}</span>
+          seconds
+        </button>
       </div>
     </div>
   );
