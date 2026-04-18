@@ -11,11 +11,26 @@ function App() {
   const [modalType, setModalType] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const [timer, setTimer] = useState(10);
+  const [timer, setTimer] = useState(3600);
+  const [userData, setUserData] = useState({
+    firstName: "",
+    email: "",
+  });
+
+  const handleLogoutClick = async () => {
+    await logout();
+    setAuthenticated(false);
+    navigate("/");
+  };
+
+  const userDataFromApi = (data) => {
+    const { firstName, email } = data.user;
+    setUserData({ firstName, email });
+  };
 
   const handleLoginSuccess = () => {
     setAuthenticated(true);
-    setTimer(10); // Reset timer to initial value
+    setTimer(3600);
     setModalType(null);
     navigate("/home", { replace: true });
   };
@@ -52,10 +67,9 @@ function App() {
         return;
       }
 
-      const timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
-      console.log("timer", timer);
     };
 
     timeLeft();
@@ -79,6 +93,7 @@ function App() {
                 onLoginSuccess={handleLoginSuccess}
                 setModalType={setModalType}
                 modalType={modalType}
+                userDataFromApi={userDataFromApi}
               />
             )}
 
@@ -87,7 +102,16 @@ function App() {
         }
       />
 
-      <Route path="/home" element={<HomeScreen timer={timer} />} />
+      <Route
+        path="/home"
+        element={
+          <HomeScreen
+            userData={userData}
+            timer={timer}
+            handleLogoutClick={handleLogoutClick}
+          />
+        }
+      />
     </Routes>
   );
 }

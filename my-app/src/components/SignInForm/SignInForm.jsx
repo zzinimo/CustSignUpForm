@@ -4,8 +4,17 @@ import { useNavigate } from "react-router-dom";
 
 import { login } from "../../utils/api";
 
-function SignInForm({ modalType, setModalType, onLoginSuccess }) {
+function SignInForm({
+  modalType,
+  setModalType,
+  onLoginSuccess,
+  userDataFromApi,
+}) {
   const navigate = useNavigate();
+
+  const handleDataFromApi = (data) => {
+    userDataFromApi(data);
+  };
 
   const initialInput = {
     email: "",
@@ -79,7 +88,8 @@ function SignInForm({ modalType, setModalType, onLoginSuccess }) {
       return;
     }
     try {
-      await login(input);
+      const data = await login(input);
+      handleDataFromApi(data);
       onLoginSuccess();
     } catch (e) {
       console.error(e);

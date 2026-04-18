@@ -112,7 +112,7 @@ module.exports.verify = (req, res) => {
 
 module.exports.logOut = (req, res) => {
   res.clearCookie("token", {
-    maxAge: 300000,
+    maxAge: 3600000,
     httpOnly: true,
     secure: false,
     sameSite: "lax",
