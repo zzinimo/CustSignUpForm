@@ -91,9 +91,13 @@
   border: none;
   border-radius: 8px;
   background-color: rgb(0, 173, 0);
+  cursor: pointer;
 }
 
 .success {
   background-color: green;
   color: white;
+}
+
+@media (max-width: 768px) {
 }

@@ -11,7 +11,7 @@ function App() {
   const [modalType, setModalType] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const [timer, setTimer] = useState(3600);
+  const [timer, setTimer] = useState(60);
   const [userData, setUserData] = useState({
     firstName: "",
     email: "",

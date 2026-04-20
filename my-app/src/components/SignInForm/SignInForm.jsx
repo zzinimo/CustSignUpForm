@@ -32,9 +32,12 @@ function SignInForm({
   const [errors, setErrors] = useState(initialErrors);
 
   const formRef = useRef(null);
+  const emailRef = useRef(null);
 
   useEffect(() => {
     if (modalType !== "signIn") return;
+
+    emailRef.current.focus();
 
     const handleMouseDown = (e) => {
       if (formRef.current && !formRef.current.contains(e.target)) {
@@ -100,8 +103,6 @@ function SignInForm({
     }
   };
 
-  // if (!isOpen) return null;
-
   return (
     <div className="overlay">
       <div className="myForm__content">
@@ -122,6 +123,7 @@ function SignInForm({
           <label className="myForm__label">
             Email:
             <input
+              ref={emailRef}
               onChange={handleInputChange}
               value={input.email}
               id="myForm__label"

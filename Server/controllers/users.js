@@ -1,6 +1,11 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const postmark = require("postmark");
+//sandbox API token. Change to My First Server to test real email
+const client = new postmark.ServerClient(
+  "4a6c7651-1e9c-4132-9a20-c3671cb6e043",
+);
 
 module.exports.getUser = async (req, res) => {
   try {
@@ -37,6 +42,15 @@ module.exports.createUser = async (req, res) => {
       password: hashedPassword,
     });
     const userToReturn = await User.findById(newUser._id).select("-password");
+    // send email after user is sent back to client
+    client.sendEmail({
+      From: "zach.zinimon@autoboutique.com",
+      To: email,
+      Subject: `Hello ${firstName[0].toUpperCase() + firstName.slice(1)} thank you for signing up`,
+      HtmlBody: `${firstName[0].toUpperCase() + firstName.slice(1)}, the email used to create your account is ${email}. Please do not share this email with anyone. There will be a representative that reaches out to you shorly, regarding your next steps! If you have any questions feel free to give us a call anytime. Thanks again!`,
+      TextBody: `${firstName[0].toUpperCase() + firstName.slice(1)}, the email used to create your account is ${email}. Please do not share this email with anyone. There will be a representative that reaches out to you shorly, regarding your next steps! If you have any questions feel free to give us a call anytime. Thanks again!`,
+      MessageStream: "outbound",
+    });
     return res.status(201).send({ data: userToReturn });
   } catch (e) {
     console.error(e);
