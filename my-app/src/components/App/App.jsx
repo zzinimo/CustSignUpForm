@@ -11,7 +11,7 @@ function App() {
   const [modalType, setModalType] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(100000);
   const [userData, setUserData] = useState({
     firstName: "",
     email: "",
@@ -30,7 +30,7 @@ function App() {
 
   const handleLoginSuccess = () => {
     setAuthenticated(true);
-    setTimer(3600);
+    setTimer(100000);
     setModalType(null);
     navigate("/home", { replace: true });
   };

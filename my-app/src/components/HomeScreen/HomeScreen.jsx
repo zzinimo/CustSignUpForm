@@ -1,17 +1,24 @@
 import "./HomeScreen.css";
 
 function HomeScreen({ timer, handleLogoutClick, userData }) {
+  const firstName = userData?.firstName ?? "";
+  const displayName =
+    firstName.length > 0
+      ? `${firstName[0].toUpperCase()}${firstName.slice(1)}`
+      : "Hello";
+  const email = userData?.email ?? "your email";
+
   return (
     <div className="homeScreen__content">
       <div className="homeScreen__text_container">
         <h1 className="homeScreen__text_container_title">
-          {`${userData.firstName}, we've received your request!`}
+          {`${displayName}, we've received your request!`}
         </h1>
         <p className="homeScreen__text_container_subtext">
           Please check your email for confirmation.{" "}
         </p>
         <p className="homeScreen__text_container_subtext">
-          {`Sent to ${userData.email}.`}
+          {email.length > 0 ? `Sent to ${email}` : ""}
         </p>
         <button className="homeScreen__button">
           Logging out in

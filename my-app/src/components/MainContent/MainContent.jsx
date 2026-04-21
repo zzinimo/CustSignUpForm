@@ -2,7 +2,6 @@ import "./MainContent.css";
 
 function MainContent({ setModalType }) {
   const handleSignUpClick = () => {
-    console.log("sign up clicked");
     setModalType("signUp");
   };
   const handleSignInClick = () => {

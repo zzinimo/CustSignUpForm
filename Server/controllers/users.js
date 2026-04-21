@@ -2,135 +2,176 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const postmark = require("postmark");
+const user = require("../models/user");
 //sandbox API token. Change to My First Server to test real email
-const client = new postmark.ServerClient(
-  "4a6c7651-1e9c-4132-9a20-c3671cb6e043",
-);
+const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
-module.exports.getUser = async (req, res) => {
+//practice using centralized error handler for getUser
+module.exports.getUser = async (req, res, next) => {
   try {
     // does this return passwords?
     const users = await User.find({});
+    if (users.length === 0) {
+      const userError = new Error("No users found Zach");
+      userError.statusCode = 404;
+      return next(userError);
+    }
     res.send({ data: users });
   } catch (e) {
-    console.error(e);
-    res.status(500).send({ message: "Error" });
+    return next(e);
   }
 };
 
-module.exports.getUserById = async (req, res) => {
+module.exports.getUserById = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).send({ message: "User not found" });
+      const noUserError = new Error("User Not Found!");
+      noUserError.statusCode = 404;
+      return next(noUserError);
     }
     return res.send({ data: user });
   } catch (e) {
     console.error(e);
-    res.status(500).send({ message: "Error finding User" });
+    return next(e);
   }
 };
 
-module.exports.createUser = async (req, res) => {
+module.exports.createUser = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password } = req.body;
+
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await User.create({
       firstName,
       lastName,
       email,
       password: hashedPassword,
     });
-    const userToReturn = await User.findById(newUser._id).select("-password");
     // send email after user is sent back to client
-    client.sendEmail({
-      From: "zach.zinimon@autoboutique.com",
-      To: email,
-      Subject: `Hello ${firstName[0].toUpperCase() + firstName.slice(1)} thank you for signing up`,
-      HtmlBody: `${firstName[0].toUpperCase() + firstName.slice(1)}, the email used to create your account is ${email}. Please do not share this email with anyone. There will be a representative that reaches out to you shorly, regarding your next steps! If you have any questions feel free to give us a call anytime. Thanks again!`,
-      TextBody: `${firstName[0].toUpperCase() + firstName.slice(1)}, the email used to create your account is ${email}. Please do not share this email with anyone. There will be a representative that reaches out to you shorly, regarding your next steps! If you have any questions feel free to give us a call anytime. Thanks again!`,
-      MessageStream: "outbound",
-    });
-    return res.status(201).send({ data: userToReturn });
+    try {
+      await client.sendEmail({
+        From: "zach.zinimon@autoboutique.com",
+        To: email,
+        Subject: `Hello ${firstName[0].toUpperCase() + firstName.slice(1)} thank you for signing up`,
+        HtmlBody: `${firstName[0].toUpperCase() + firstName.slice(1)}, the email used to create your account is ${email}. Please do not share this email with anyone. There will be a representative that reaches out to you shorly, regarding your next steps! If you have any questions feel free to give us a call anytime. Thanks again!`,
+        TextBody: `${firstName[0].toUpperCase() + firstName.slice(1)}, the email used to create your account is ${email}. Please do not share this email with anyone. There will be a representative that reaches out to you shortly, regarding your next steps! If you have any questions feel free to give us a call anytime. Thanks again!`,
+        MessageStream: "outbound",
+      });
+    } catch (emailError) {
+      console.error("Email failed:", emailError);
+    }
   } catch (e) {
     console.error(e);
-    res.status(500).send({ message: "Error Creating User" });
+    next(e);
   }
 };
 
-module.exports.deleteUser = async (req, res) => {
+//practicing using centralized error handler for deleteUser
+module.exports.deleteUser = async (req, res, next) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser) {
-      return res.status(404).send({ message: "User not found" });
+      const deleteUserError = new Error(
+        "Cannot delete this user, please try again",
+      );
+      return next(deleteUserError);
     }
-    return res.send({ data: deletedUser });
+    return res.send({ message: "User deleted" });
   } catch (e) {
-    console.error(e);
-    res.status(500).send({ message: "error deleting user" });
+    return next(e);
   }
 };
 
-module.exports.updateUser = async (req, res) => {
+//practicing centralized error handling with updateUser
+module.exports.updateUser = async (req, res, next) => {
+  const { firstName, lastName } = req.body;
   try {
     const user = await User.findByIdAndUpdate(
       req.params.id,
       {
-        firstName: "Olivia",
+        firstName,
+        lastName,
       },
       {
         new: true,
         runValidators: true,
       },
     );
-    return res.status(201).send({ data: user });
+
+    if (!user) {
+      const updateUserError = new Error(
+        "Could not find user to update, please try again",
+      );
+      return next(updateUserError);
+    }
+
+    return res.status(201).send("User updated");
   } catch (e) {
-    console.error(e);
-    res.status(500).send({ message: "Error finding user" });
+    next(e);
   }
 };
 
-module.exports.login = async (req, res) => {
-  console.log(req.body);
-  const { email, password } = req.body;
+module.exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select("+password");
 
-  if (!user) {
-    return res.status(401).json({ message: "Invalid email or password" });
+    if (!user) {
+      const loginError = new Error("Invalid email or password");
+      loginError.statusCode = 401;
+      return next(loginError);
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      const bcryptError = new Error("Please check email or password");
+      bcryptError.statusCode = 401;
+      return next(bcryptError);
+    }
+
+    const userToSend = user.toObject();
+    delete userToSend.password;
+    delete userToSend.lastName;
+    delete userToSend.email;
+    //change to environment variable
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
+    res.cookie("token", token, {
+      maxAge: 3600000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    return res.json({ user: userToSend, message: "Logged in successfully!" });
+  } catch (e) {
+    next(e);
   }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    return res.status(401).json({ message: "Invalid email or password" });
-  }
-
-  const userToSend = user.toObject();
-  delete userToSend.password;
-  //change to environment variable
-  const token = jwt.sign({ id: user._id }, "secret", { expiresIn: "1h" });
-  res.cookie("token", token, {
-    maxAge: 3600000,
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
-
-  return res.json({ user: userToSend, message: "Logged in successfully!" });
 };
 
-module.exports.verify = (req, res) => {
-  res.status(200).json({ authenticated: true, id: req.payload._id });
+module.exports.verify = async (req, res, next) => {
+  try {
+    res.status(200).json({ authenticated: true, id: req.payload._id });
+  } catch (e) {
+    next(e);
+  }
 };
 
-module.exports.logOut = (req, res) => {
-  res.clearCookie("token", {
-    maxAge: 3600000,
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
-
-  return res.status(200).json({ message: "Logged out successfully" });
+module.exports.logOut = (req, res, next) => {
+  try {
+    res.clearCookie("token", {
+      maxAge: 3600000,
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (e) {
+    next(e);
+  }
 };

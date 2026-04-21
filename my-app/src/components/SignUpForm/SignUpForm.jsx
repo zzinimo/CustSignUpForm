@@ -36,7 +36,6 @@ function SignUpForm({ setModalType, modalType }) {
   };
 
   const handleCloseButtonClick = (e) => {
-    console.log(e.target);
     setModalType(null);
   };
 
@@ -66,12 +65,10 @@ function SignUpForm({ setModalType, modalType }) {
 
     const hasErrors = Object.values(newErrors).some(Boolean);
     if (hasErrors) {
-      console.log(newErrors);
       return;
     }
     try {
       const result = await createUserFetch(input);
-      console.log(result);
     } finally {
       setInput(initialInput);
       setModalType(null);

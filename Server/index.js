@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -6,20 +7,9 @@ const postmark = require("postmark");
 
 const mongoose = require("mongoose");
 
-const client = new postmark.ServerClient(
-  "4a6c7651-1e9c-4132-9a20-c3671cb6e043",
-);
-
-client.sendEmail({
-  From: "zach.zinimon@autoboutique.com",
-  To: "zach.zinimon@autoboutique.com",
-  Subject: "Subject Welcome to Postmark Zach!",
-  Tag: "Practice Tag",
-  HtmlBody: "<b>Hello Zach, you've sent a message, this is the HTML BODY</b>",
-  TextBody: "TextBody",
-});
-
+const ErrorHandler = require("./middleware/errorHandler");
 const router = require("./routes/users");
+const errorHandler = require("./middleware/errorHandler");
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -45,5 +35,7 @@ async function startServer() {
     console.error("MongoDB connection error:", e);
   }
 }
+
+app.use(errorHandler);
 
 startServer();
