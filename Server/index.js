@@ -22,6 +22,10 @@ app.use(
     credentials: true,
   }),
 );
+// Default root route to prevent 404 on backend root
+app.get("/", (req, res) => {
+  res.send("API is running");
+});
 app.use(express.json());
 app.use(cookieParser());
 app.use("/users", router);

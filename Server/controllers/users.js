@@ -49,6 +49,7 @@ module.exports.createUser = async (req, res, next) => {
       email,
       password: hashedPassword,
     });
+
     // send email after user is sent back to client
     try {
       await client.sendEmail({
@@ -62,6 +63,9 @@ module.exports.createUser = async (req, res, next) => {
     } catch (emailError) {
       console.error("Email failed:", emailError);
     }
+
+    // Send response to client after user creation
+    res.status(201).json({ message: "User created", user: newUser });
   } catch (e) {
     console.error(e);
     next(e);
