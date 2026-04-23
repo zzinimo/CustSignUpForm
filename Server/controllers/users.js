@@ -149,7 +149,7 @@ module.exports.login = async (req, res, next) => {
       maxAge: 3600000,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "None",
     });
 
     return res.json({ user: userToSend, message: "Logged in successfully!" });
