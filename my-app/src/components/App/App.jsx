@@ -50,7 +50,7 @@ function App() {
       }
     };
     checkAuth();
-  }, [navigate]);
+  }, [navigate, authenticated]);
 
   useEffect(() => {
     let timeoutId;
