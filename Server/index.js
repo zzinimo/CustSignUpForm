@@ -19,7 +19,6 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-
 app.use("/users", router);
 
 const isProduction = process.env.NODE_ENV === "production";
