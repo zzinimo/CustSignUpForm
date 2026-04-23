@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const postmark = require("postmark");
 
 const mongoose = require("mongoose");
+const PORT = process.env.PORT || 3000;
 
 const ErrorHandler = require("./middleware/errorHandler");
 const router = require("./routes/users");
@@ -19,20 +20,28 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-const { PORT = 3000 } = process.env;
-
 app.use("/users", router);
+
+const isProduction = process.env.NODE_ENV === "production";
+const atlasURI = process.env.DATABASE_URL;
 
 async function startServer() {
   try {
-    await mongoose.connect("mongodb://localhost:27017/login");
+    await mongoose.connect(atlasURI);
+
+    if (isProduction) {
+      console.log("Connected to Production Atlas Cluster");
+    } else {
+      console.log("Connected to Atlas (Development Mode)");
+    }
     console.log("MongoDB connected");
 
     app.listen(PORT, () => {
       console.log(`App listening to ${PORT}`);
     });
   } catch (e) {
-    console.error("MongoDB connection error:", e);
+    console.error("Connection failed", e.message);
+    process.exit(1);
   }
 }
 
