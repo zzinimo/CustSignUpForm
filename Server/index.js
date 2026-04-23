@@ -5,6 +5,9 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const postmark = require("postmark");
 
+const path = require("path");
+app.use(express.static(path.join(__dirname, "../my-app/dis")));
+
 const mongoose = require("mongoose");
 const PORT = process.env.PORT || 3000;
 
@@ -29,6 +32,9 @@ app.get("/", (req, res) => {
 app.use(express.json());
 app.use(cookieParser());
 app.use("/users", router);
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../my-app/dist/index.html"));
+});
 
 const isProduction = process.env.NODE_ENV === "production";
 const atlasURI = process.env.DATABASE_URL;
