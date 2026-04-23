@@ -1,4 +1,7 @@
-const url = "http://localhost:3000/users";
+const url =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000/users" // my local backend
+    : "https://custsignupform.onrender.com/users";
 
 export const createUserFetch = async (userData) => {
   const response = await fetch(url, {
@@ -17,7 +20,6 @@ export const createUserFetch = async (userData) => {
 };
 
 export const login = async (userData) => {
-  console.log("request to authenticate sending");
   const response = await fetch(`${url}/login`, {
     method: "POST",
     credentials: "include",
